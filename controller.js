@@ -306,8 +306,11 @@ exports.reportUser = function (req, res) {
 
 
 
-
-
 exports.index = function (req, res) {
     res.send(`${req.baseUrl}`)
+    res.sendFile(__dirname + '/index.html');
+};
+
+exports.sample = function (req, res) {
+    res.sendFile(__dirname + '/index.html');
 };

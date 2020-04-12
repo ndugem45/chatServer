@@ -6,6 +6,12 @@ module.exports = function (app) {
     app.route('/')
         .get(todoList.index);
 
+    app.route('/sample')
+        .get(todoList.sample);
+
+
+
+
     app.route('/getProfile')
         .post(todoList.profile);
 
