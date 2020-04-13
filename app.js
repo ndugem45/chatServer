@@ -11,27 +11,49 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 app.use('/avatar', express.static(__dirname + '/asset/avatar'));
 
-const routes = require('./routes');
-routes(app);
 
 
+const users = []
 io.on('connection', function (socket) {
-    console.log('a user connected');
 
     socket.on('disconnect', function () {
-        console.log('user disconnected');
+        console.log(`user ${socket.id} disconnected`);
+
+        var i = users.findIndex(x => x.socId == socket.id)
+        users.splice(i, 1)
+
+        console.log('users list', users)
     });
 
-    socket.on('enterRoom', function (user) {
-        console.log(`user ${user} enter room`);
+    socket.on('active', function (id, user) {
+        if (user) {
+            console.log(`user ${user} active`);
+            var i = users.findIndex(x => x.user == user)
+            if (i > -1) {
+                users[i].socId = id
+            } else {
+                users.push({
+                    user: user,
+                    socId: id
+                })
+            }
+            io.emit('info', users);
+            console.log('users list', users)
+        }
     });
 
-    socket.on('userSendMessage', function (user, msg) {
+
+
+    socket.on('sendMessage', function (from, user, msg) {
         console.log(`${user} message: ${msg}`);
-        io.emit('userSendMessage', user, msg);
+        var i = users.findIndex(x => x.user == user)
+        if (i > -1) {
+            socket.to(users[i].socId).emit('personalMessage', from, msg);
+        }
     });
-
-
 });
+
+const routes = require('./routes');
+routes(app);
 
 http.listen(port, () => console.log(`app listening...`))

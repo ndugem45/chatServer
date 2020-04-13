@@ -22,18 +22,20 @@
             width: 100%;
         }
 
-        form input {
+        #m {
             border: 0;
             padding: 10px;
-            width: 90%;
+            /* width: 90%; */
             margin-right: .5%;
+            flex: 3;
         }
 
-        form button {
-            width: 9%;
+        #b {
+            /* width: 9%; */
             background: rgb(130, 224, 255);
             border: none;
             padding: 10px;
+            flex: 1;
         }
 
         #messages {
@@ -55,7 +57,13 @@
 <body>
     <ul id="messages"></ul>
     <form action="">
-        <input id="m" autocomplete="off" /><button>Send</button>
+        <select style="width: 100%;margin-bottom: 2vh;" id="s">
+        </select>
+        <div style="display: flex;">
+            <input id="ma" autocomplete="off" style="flex:1;margin-right: 2vw;" />
+            <input id="m" autocomplete="off" />
+            <button id="b">Send</button>
+        </div>
     </form>
 
     <script src="/socket.io/socket.io.js"></script>
@@ -63,15 +71,31 @@
     <script>
         $(function () {
             var socket = io();
-            var user = `userid-7`
-            socket.emit('enterRoom', user);
+            var user = 7;//`${Math.floor(Math.random() * 10)}`
+
+            socket.on('connect', () => {
+                socket.emit('active', socket.id, user);
+                console.log(socket.id); // 'G5p5...'
+            });
+
             $('form').submit(function (e) {
                 e.preventDefault(); // prevents page reloading
-                socket.emit('userSendMessage', user, $('#m').val());
+                $('#messages').append($('<li>').text(`${$('#m').val()}`));
+                socket.emit('sendMessage', user, $('#ma').val(), $('#m').val());
                 $('#m').val('');
                 return false;
             });
-            socket.on('userSendMessage', function (user, msg) {
+
+            socket.on('info', function (users) {
+                $("#s").empty()
+                users.map((s, i) => {
+                    if (s.user != user) {
+                        $('#s').append($('<option>').text(`${s.user}`));
+                    }
+                })
+            });
+
+            socket.on('personalMessage', function (user, msg) {
                 $('#messages').append($('<li>').text(`${user} => ${msg}`));
             });
         });
