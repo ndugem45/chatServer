@@ -9,7 +9,7 @@
   "author": "AdiantoDU",
   "license": "ISC",
   "dependencies": {
-    "async": "^3.2.0",
+    "async": "^3.2.2",
     "body-parser": "^1.19.0",
     "express": "^4.17.1",
     "geo-distance": "^0.2.0",
